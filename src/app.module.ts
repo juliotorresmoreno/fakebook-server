@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './resources/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import configuration, { validationSchema } from './config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './resources/auth/auth.module';
 import { CryptoService } from './services/crypto/crypto.service';
+import configuration, { validationSchema } from './config/configuration';
 
 @Module({
   imports: [
