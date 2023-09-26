@@ -10,11 +10,17 @@ import { ApiProperty } from '@nestjs/swagger';
   allowUnknown: false,
 })
 export class SignUpDto {
-  @ApiProperty({
-    example: 'asas',
-  })
+  @ApiProperty()
   @JoiSchema(Joi.string().required())
-  readonly username: string;
+  readonly email: string;
+
+  @ApiProperty()
+  @JoiSchema(Joi.string().required())
+  readonly firstname: string;
+
+  @ApiProperty()
+  @JoiSchema(Joi.string().required())
+  readonly lastname: string;
 
   @ApiProperty()
   @JoiSchema(Joi.string().required())

@@ -12,7 +12,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class SignInDto {
   @ApiProperty()
   @JoiSchema(Joi.string().required())
-  readonly username: string;
+  readonly email: string;
 
   @ApiProperty()
   @JoiSchema(Joi.string().required())

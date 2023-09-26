@@ -17,14 +17,18 @@ export const validationSchema = Joi.object({
     .default('postgres'),
   DB_SYNC: Joi.string().valid('true', 'false').optional(),
   ALLOW_ORIGIN: Joi.string().required(),
+
+  SECRET: Joi.string().required(),
 });
 
-type Configuration = {
+export type Configuration = {
   port: number;
   appName: string;
+  secret: string;
 };
 
 export default (): Configuration => ({
   port: parseInt(process.env.PORT, 10) || 3000,
   appName: process.env.APP_NAME || '',
+  secret: process.env.SECRET,
 });

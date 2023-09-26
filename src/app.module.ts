@@ -3,6 +3,7 @@ import { AuthModule } from './resources/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration, { validationSchema } from './config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CryptoService } from './services/crypto/crypto.service';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     AuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [CryptoService],
   exports: [],
 })
 export class AppModule {}
