@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import {} from 'ioredis';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
