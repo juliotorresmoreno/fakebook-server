@@ -7,11 +7,11 @@ import {
   Get,
   UseGuards,
   Request,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JoiValidationPipe } from 'src/pipes/joiValidation.pipe';
 import { AuthService } from './auth.service';
 import {
-  SessionDtoResponse,
   SignInDto,
   SignInDtoResponse,
   SignInDtoSchema,
@@ -28,8 +28,10 @@ import {
   SignUpDtoResponse,
   SignUpDtoSchema,
 } from './dto/sign-up.dto';
-import { AuthGuard } from 'src/guards/auth/auth.guard';
 import express from 'express';
+import { RolesDecorator } from 'src/roles';
+import { RolesGuard } from 'src/guards/roles/roles.guard';
+import { SessionDtoResponse } from './dto/session.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -87,14 +89,16 @@ export class AuthController {
     description: 'OK',
     type: SessionDtoResponse,
   })
-  @UseGuards(AuthGuard)
+  @RolesDecorator(['user', 'admin'])
+  @UseGuards(RolesGuard)
   async session(
     @Request() req: express.Request,
     @Response() res: express.Response,
   ) {
-    const _session = (req as any).session;
-    const user = await this.authService.findOne(_session.user.id);
-    const session = await this.authService.session(user, _session.token);
+    const session = (req as any).session;
+    if (!session) {
+      throw new UnauthorizedException();
+    }
 
     res.cookie('accessToken', session.token, {
       expires: new Date(new Date().getTime() + 86400000 * 30),

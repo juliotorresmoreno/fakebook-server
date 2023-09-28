@@ -1,3 +1,4 @@
+import { Roles, userRole } from 'src/roles';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'users' })
@@ -7,6 +8,7 @@ export class User {
 
   @Column({
     unique: true,
+    nullable: false,
   })
   email: string;
 
@@ -19,6 +21,12 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column()
+  @Column({ nullable: false })
   password: string;
+
+  @Column({
+    default: userRole,
+    nullable: false,
+  })
+  rol: Roles;
 }

@@ -24,6 +24,7 @@ export class AuthService {
     'firstname',
     'lastname',
     'isActive',
+    'rol',
   ];
   private logger = new Logger('AuthService');
   private catchError = (err: any) => {
@@ -74,10 +75,17 @@ export class AuthService {
     return this.cryptoService.generateString(n);
   }
 
+  async validateToken(token: string) {
+    const userId = await this.cacheManager.get(token);
+    const user = await this.findOne(userId as number);
+
+    return { token, user };
+  }
+
   async session(user: User, token: string = this.generateString(32)) {
     await this.cacheManager.set(token, user.id, 86400000 * 30);
 
-    return { token, session: user };
+    return { token, user };
   }
 
   async findOne(id: number) {

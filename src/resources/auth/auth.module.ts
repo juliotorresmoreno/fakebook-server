@@ -9,6 +9,6 @@ import { CryptoService } from 'src/services/crypto/crypto.service';
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [AuthController],
   providers: [AuthService, CryptoService],
-  exports: [],
+  exports: [AuthService],
 })
 export class AuthModule {}

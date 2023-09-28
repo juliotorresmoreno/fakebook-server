@@ -1,33 +1,13 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Cache } from 'cache-manager';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { IncomingMessage } from 'http';
 import { Observable } from 'rxjs';
-import { User } from 'src/entities/User.entity';
-import { Repository } from 'typeorm';
+import { AuthService } from 'src/resources/auth/auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  private columns: (keyof User)[] = [
-    'id',
-    'email',
-    'firstname',
-    'lastname',
-    'isActive',
-  ];
-  constructor(
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  canActivate(
+  _canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const req: IncomingMessage = context.switchToHttp().getRequest();
@@ -36,21 +16,21 @@ export class AuthGuard implements CanActivate {
     token = token.split('Bearer ')[1] ?? '';
     accessToken = accessToken.split('accessToken=')[1] ?? '';
 
-    const cacheManager = this.cacheManager;
+    const authService = this.authService;
     const authorization = token || accessToken;
 
-    return cacheManager.get(authorization).then((id) => {
-      if (id === undefined) return false;
-      return this.usersRepository
-        .findOne({
-          where: { id: id as number },
-          select: this.columns,
-          cache: 30000,
-        })
-        .then((user) => {
-          (req as any).session = { token: authorization, user };
-          return user !== undefined;
-        });
-    });
+    return authService
+      .validateToken(authorization)
+      .then((session) => {
+        (req as any).session = session;
+        return true;
+      })
+      .catch(() => false);
+  }
+
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    return this._canActivate(context);
   }
 }
