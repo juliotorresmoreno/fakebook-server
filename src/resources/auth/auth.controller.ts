@@ -1,16 +1,17 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   UsePipes,
+  Response,
+  Get,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { JoiValidationPipe } from 'src/pipes/joiValidation.pipe';
 import { AuthService } from './auth.service';
 import {
+  SessionDtoResponse,
   SignInDto,
   SignInDtoResponse,
   SignInDtoSchema,
@@ -20,12 +21,15 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiHeader,
+  ApiOkResponse,
 } from '@nestjs/swagger';
 import {
   SignUpDto,
   SignUpDtoResponse,
   SignUpDtoSchema,
 } from './dto/sign-up.dto';
+import { AuthGuard } from 'src/guards/auth/auth.guard';
+import express from 'express';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -66,7 +70,38 @@ export class AuthController {
     description: 'Created',
     type: SignInDtoResponse,
   })
-  signIn(@Body() createAuthDto: SignInDto) {
-    return this.authService.signIn(createAuthDto);
+  async signIn(@Response() res, @Body() createAuthDto: SignInDto) {
+    const session = await this.authService.signIn(createAuthDto);
+
+    res.cookie('accessToken', session.token, {
+      expires: new Date(new Date().getTime() + 86400000 * 30),
+      sameSite: 'strict',
+      httpOnly: true,
+    });
+
+    res.json(session);
+  }
+
+  @Get('session')
+  @ApiOkResponse({
+    description: 'OK',
+    type: SessionDtoResponse,
+  })
+  @UseGuards(AuthGuard)
+  async session(
+    @Request() req: express.Request,
+    @Response() res: express.Response,
+  ) {
+    const _session = (req as any).session;
+    const user = await this.authService.findOne(_session.user.id);
+    const session = await this.authService.session(user, _session.token);
+
+    res.cookie('accessToken', session.token, {
+      expires: new Date(new Date().getTime() + 86400000 * 30),
+      sameSite: 'strict',
+      httpOnly: true,
+    });
+
+    res.json(session);
   }
 }

@@ -31,7 +31,7 @@ export class CryptoService {
 
   generateString(length: number): string {
     return crypto
-      .randomBytes(length / 2 + 1)
+      .randomBytes(Math.floor(length / 2) + 1)
       .toString('hex')
       .substring(0, length);
   }

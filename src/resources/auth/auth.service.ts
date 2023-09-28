@@ -2,6 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   BadRequestException,
   HttpException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -12,6 +13,8 @@ import { SignInDto } from './dto/sign-in.dto';
 import { User } from 'src/entities/User.entity';
 import { SignUpDto } from './dto/sign-up.dto';
 import { CryptoService } from 'src/services/crypto/crypto.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -42,6 +45,7 @@ export class AuthService {
     private cryptoService: CryptoService,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async signIn(payload: SignInDto) {
@@ -66,13 +70,14 @@ export class AuthService {
       .catch(this.catchError);
   }
 
-  async session(user: User) {
-    const token = this.cryptoService.generateString(32);
+  private generateString(n: number) {
+    return this.cryptoService.generateString(n);
+  }
 
-    return {
-      token,
-      session: user,
-    };
+  async session(user: User, token: string = this.generateString(32)) {
+    await this.cacheManager.set(token, user.id, 86400000 * 30);
+
+    return { token, session: user };
   }
 
   async findOne(id: number) {

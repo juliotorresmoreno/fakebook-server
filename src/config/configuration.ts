@@ -1,4 +1,6 @@
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as Joi from 'joi';
+import * as path from 'path';
 
 export const validationSchema = Joi.object({
   NODE_ENV: Joi.string()
@@ -19,16 +21,32 @@ export const validationSchema = Joi.object({
   ALLOW_ORIGIN: Joi.string().required(),
 
   SECRET: Joi.string().required(),
+  REDIS_URL: Joi.string().required(),
 });
 
 export type Configuration = {
   port: number;
   appName: string;
   secret: string;
+  redis?: {
+    url?: string;
+  };
+  database?: TypeOrmModuleOptions;
 };
 
 export default (): Configuration => ({
   port: parseInt(process.env.PORT, 10) || 3000,
   appName: process.env.APP_NAME || '',
   secret: process.env.SECRET,
+  redis: { url: process.env.REDIS_URL },
+  database: {
+    type: process.env.DB_DRIVER as any,
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    entities: [path.join(__dirname, '..', 'entities', '*.entity{.ts,.js}')],
+    synchronize: process.env.DB_SYNC === 'true',
+  },
 });
