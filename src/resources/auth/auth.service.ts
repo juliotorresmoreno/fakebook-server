@@ -15,6 +15,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { CryptoService } from 'src/services/crypto/crypto.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { EmailService } from 'src/services/email/email.service';
 
 @Injectable()
 export class AuthService {
@@ -47,6 +48,7 @@ export class AuthService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private emailService: EmailService,
   ) {}
 
   async signIn(payload: SignInDto) {
@@ -104,7 +106,20 @@ export class AuthService {
         ...payload,
         password: encoded,
       })
-      .then((user) => this.findOne(user.id))
+      .then((user) => {
+        this.emailService.send({
+          to: user.email,
+          subject: 'Welcome to FakeBook',
+          html: `
+            <h1>Welcome to FakeBook</h1>
+            <p>Hi ${user.firstname} ${user.lastname},</p>
+            <p>Thanks for signing up for FakeBook! We're excited to have you as an early user.</p>
+            <p>Best,</p>
+            <p>The FakeBook Team</p>
+          `,
+        });
+        this.findOne(user.id);
+      })
       .catch(this.catchError);
   }
 }

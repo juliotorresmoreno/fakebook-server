@@ -10,6 +10,7 @@ import configuration, {
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import type { RedisClientOptions } from 'redis';
+import { EmailService } from './services/email/email.service';
 
 @Module({
   imports: [
@@ -41,7 +42,7 @@ import type { RedisClientOptions } from 'redis';
     AuthModule,
   ],
   controllers: [],
-  providers: [CryptoService],
+  providers: [CryptoService, EmailService],
   exports: [],
 })
 export class AppModule {}

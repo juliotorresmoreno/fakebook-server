@@ -31,6 +31,13 @@ export type Configuration = {
   redis?: {
     url?: string;
   };
+  email?: {
+    from: string;
+    provider: string;
+  };
+  resend?: {
+    ApiKey: string;
+  };
   database?: TypeOrmModuleOptions;
 };
 
@@ -48,5 +55,12 @@ export default (): Configuration => ({
     database: process.env.DB_NAME,
     entities: [path.join(__dirname, '..', 'entities', '*.entity{.ts,.js}')],
     synchronize: process.env.DB_SYNC === 'true',
+  },
+  email: {
+    from: process.env.EMAIL_FROM,
+    provider: process.env.EMAIL_PROVIDER,
+  },
+  resend: {
+    ApiKey: process.env.RESEND_API_KEY,
   },
 });

@@ -12,17 +12,17 @@ import {
 import { JoiValidationPipe } from 'src/pipes/joiValidation.pipe';
 import { AuthService } from './auth.service';
 import {
-  SignInDto,
-  SignInDtoResponse,
-  SignInDtoSchema,
-} from './dto/sign-in.dto';
-import {
   ApiTags,
   ApiBody,
   ApiCreatedResponse,
   ApiHeader,
   ApiOkResponse,
 } from '@nestjs/swagger';
+import {
+  SignInDto,
+  SignInDtoResponse,
+  SignInDtoSchema,
+} from './dto/sign-in.dto';
 import {
   SignUpDto,
   SignUpDtoResponse,
